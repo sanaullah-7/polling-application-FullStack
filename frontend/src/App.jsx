@@ -6,6 +6,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import DashboardLayout from "./layouts/DashboardLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import PageLoader from "./components/ui/PageLoader";
+import DecorativeBg from "./components/ui/DecorativeBg";
 import ProtectedRoute, { GuestRoute } from "./routes/ProtectedRoute";
 
 const LandingPage = lazy(() => import("./pages/LandingPage"));
@@ -30,6 +31,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <DecorativeBg />
         <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
             <Routes>
@@ -65,13 +67,16 @@ export default function App() {
             </Routes>
           </Suspense>
           <Toaster
-            position="top-right"
+            position="top-center"
             toastOptions={{
+              duration: 3000,
               className: "text-sm",
               style: {
                 background: "var(--card)",
                 color: "var(--text)",
                 border: "1px solid var(--border)",
+                borderRadius: "12px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
               },
             }}
           />

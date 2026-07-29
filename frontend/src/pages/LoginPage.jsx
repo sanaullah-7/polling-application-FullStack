@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FiLock, FiMail } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import Logo from "../components/ui/Logo";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
@@ -21,7 +23,7 @@ export default function LoginPage() {
       navigate(location.state?.from || "/app/home", { replace: true });
     } catch (err) {
       if (err.raw?.response?.data?.needsVerification) {
-        toast.error("Verify your email first");
+        toast.error("Please verify your email first");
         navigate("/verify-otp", {
           state: { email: err.raw.response.data.email || form.email },
         });
@@ -34,37 +36,49 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="card rounded-3xl p-6 md:p-8">
-      <h1 className="text-2xl font-bold">Sign in</h1>
-      <p className="mt-1 text-sm text-muted">Access your Pollify dashboard</p>
-      <form onSubmit={submit} className="mt-6 space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          required
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-        <Input
-          label="Password"
-          type="password"
-          required
-          minLength={8}
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-        <Button className="w-full" loading={loading} type="submit">
-          Sign in
-        </Button>
-      </form>
-      <div className="mt-4 flex flex-wrap justify-between gap-2 text-sm">
-        <Link to="/forgot-password" className="text-indigo-500">
-          Forgot password?
-        </Link>
-        <Link to="/register" className="text-muted">
-          Create account
-        </Link>
+    <>
+      <div className="mb-8 text-center lg:hidden">
+        <Logo />
       </div>
-    </div>
+
+      <div className="card auth-card rounded-2xl p-8">
+        <h1 className="text-2xl font-bold">Welcome back</h1>
+        <p className="mt-1 text-sm text-muted">Sign in to your Pollify account</p>
+
+        <form onSubmit={submit} className="mt-7 space-y-5">
+          <Input
+            label="Email address"
+            type="email"
+            icon={FiMail}
+            required
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          <Input
+            label="Password"
+            type="password"
+            icon={FiLock}
+            required
+            minLength={8}
+            placeholder="Enter your password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+          <Button className="w-full py-3" loading={loading} type="submit">
+            Sign in
+          </Button>
+        </form>
+
+        <div className="mt-6 flex items-center justify-between text-sm">
+          <Link to="/forgot-password" className="font-medium text-[var(--accent)] hover:underline">
+            Forgot password?
+          </Link>
+          <Link to="/register" className="text-muted hover:text-[var(--accent)]">
+            Create account →
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }

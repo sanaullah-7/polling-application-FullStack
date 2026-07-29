@@ -44,12 +44,7 @@ export default function CreatePollPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Create poll</h1>
-        <p className="text-muted">
-          Supported backend types: yes/no, multiple choice, and image polls.
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold">Create poll</h1>
 
       <form onSubmit={submit} className="card space-y-4 rounded-2xl p-6">
         <TextArea

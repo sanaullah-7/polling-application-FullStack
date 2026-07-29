@@ -13,69 +13,60 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useNotifications } from "../hooks/useNotifications";
 import Avatar from "../components/ui/Avatar";
+import Logo from "../components/ui/Logo";
 
 const navItems = [
-  { to: "/app/home", label: "Home", icon: FiHome },
-  { to: "/app/polls", label: "All Polls", icon: MdPoll },
-  { to: "/app/polls/mine", label: "My Polls", icon: MdPoll },
-  { to: "/app/polls/create", label: "Create", icon: FiPlusCircle },
-  { to: "/app/notifications", label: "Notifications", icon: FiBell },
-  { to: "/app/profile", label: "Profile", icon: FiUser },
+  { to: "/app/home", label: "Home", icon: FiHome, emoji: "🏠" },
+  { to: "/app/polls", label: "All Polls", icon: MdPoll, emoji: "🗳️" },
+  { to: "/app/polls/mine", label: "My Polls", icon: MdPoll, emoji: "📋" },
+  { to: "/app/polls/create", label: "Create", icon: FiPlusCircle, emoji: "✨" },
+  { to: "/app/notifications", label: "Alerts", icon: FiBell, emoji: "🔔" },
+  { to: "/app/profile", label: "Profile", icon: FiUser, emoji: "👤" },
 ];
 
 export default function DashboardLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { toggleTheme, isDark } = useTheme();
-  const { unread } = useNotifications();
+  const { unread } = useNotifications(90000, isAuthenticated);
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className="glass sticky top-0 hidden h-screen flex-col border-r border-[var(--border)] p-5 lg:flex">
-        <div className="mb-8 flex items-center gap-2">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white">
-            <MdPoll />
-          </div>
-          <div>
-            <p className="font-bold">Pollify</p>
-            <p className="text-xs text-muted">Decisions, beautifully simple</p>
-          </div>
+    <div className="dashboard-shell">
+      {/* Sidebar — desktop */}
+      <aside className="dashboard-sidebar glass hidden lg:flex">
+        <div className="mb-8">
+          <Logo />
+          <p className="mt-1 text-xs text-muted">Decisions, made simple</p>
         </div>
 
-        <nav className="space-y-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
+        <nav className="flex-1 space-y-1">
+          {navItems.map(({ to, label, icon: Icon, emoji }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-indigo-500/15 text-indigo-500"
-                    : "text-muted hover:bg-black/5 hover:text-[var(--text)] dark:hover:bg-white/5"
-                }`
+                `nav-link ${isActive ? "nav-link-active" : ""}`
               }
             >
-              <Icon />
-              <span>{label}</span>
-              {label === "Notifications" && unread > 0 ? (
-                <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">
-                  {unread}
+              <span className="text-base">{emoji}</span>
+              <Icon size={18} />
+              <span className="flex-1">{label}</span>
+              {label === "Alerts" && unread > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                  {unread > 9 ? "9+" : unread}
                 </span>
               ) : null}
             </NavLink>
           ))}
         </nav>
 
-        <div className="mt-auto space-y-3 pt-6">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-black/5 dark:hover:bg-white/5"
-          >
-            {isDark ? <FiSun /> : <FiMoon />}
-            {isDark ? "Light mode" : "Dark mode"}
+        <div className="mt-auto space-y-3 border-t border-[var(--border)] pt-4">
+          <button type="button" onClick={toggleTheme} className="nav-link w-full">
+            {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+            <span>{isDark ? "Light mode" : "Dark mode"}</span>
           </button>
-          <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] p-3">
+
+          <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--accent-soft)]/50 p-3">
             <Avatar user={user} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{user?.name}</p>
@@ -87,50 +78,58 @@ export default function DashboardLayout() {
                 logout();
                 navigate("/login");
               }}
-              className="rounded-lg p-2 text-muted hover:bg-black/5 hover:text-rose-500"
+              className="rounded-lg p-2 text-muted transition hover:bg-rose-500/10 hover:text-rose-500"
               aria-label="Logout"
             >
-              <FiLogOut />
+              <FiLogOut size={16} />
             </button>
           </div>
         </div>
       </aside>
 
-      <div className="min-h-screen">
-        <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-[var(--border)] px-4 py-3 lg:hidden">
-          <div className="font-bold">Pollify</div>
-          <div className="flex items-center gap-2">
-            <NavLink to="/app/notifications" className="relative p-2">
-              <FiBell />
+      {/* Main column */}
+      <div className="dashboard-main">
+        <header className="glass flex shrink-0 items-center justify-between border-b border-[var(--border)] px-4 py-3 lg:hidden">
+          <Logo size="sm" />
+          <div className="flex items-center gap-1">
+            <NavLink to="/app/notifications" className="relative rounded-xl p-2.5">
+              <FiBell size={20} />
               {unread > 0 ? (
-                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-rose-500" />
+                <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-[var(--card)]" />
               ) : null}
             </NavLink>
-            <button type="button" onClick={toggleTheme} className="p-2">
-              {isDark ? <FiSun /> : <FiMoon />}
+            <button type="button" onClick={toggleTheme} className="rounded-xl p-2.5">
+              {isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
             </button>
           </div>
         </header>
 
-        <main className="mx-auto max-w-6xl px-4 py-6 pb-24 lg:pb-8">
-          <Outlet />
+        <main className="dashboard-content page-enter">
+          <div className="dashboard-inner">
+            <Outlet />
+          </div>
         </main>
 
-        <nav className="glass fixed bottom-0 left-0 right-0 z-20 grid grid-cols-5 border-t border-[var(--border)] px-2 py-2 lg:hidden">
-          {navItems.slice(0, 5).map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-1 rounded-lg px-1 py-1 text-[10px] ${
-                  isActive ? "text-indigo-500" : "text-muted"
-                }`
-              }
-            >
-              <Icon size={18} />
-              {label.split(" ")[0]}
-            </NavLink>
-          ))}
+        <nav className="glass shrink-0 border-t border-[var(--border)] px-2 py-2 lg:hidden">
+          <div className="grid grid-cols-5 gap-1">
+            {navItems.slice(0, 5).map(({ to, icon: Icon, emoji, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `flex flex-col items-center gap-0.5 rounded-xl py-2 text-[10px] font-medium transition ${
+                    isActive
+                      ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                      : "text-muted"
+                  }`
+                }
+              >
+                <span className="text-base leading-none">{emoji}</span>
+                <Icon size={16} />
+                <span>{label.split(" ")[0]}</span>
+              </NavLink>
+            ))}
+          </div>
         </nav>
       </div>
     </div>

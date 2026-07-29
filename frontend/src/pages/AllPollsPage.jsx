@@ -68,7 +68,6 @@ export default function AllPollsPage({ defaultTab = "all" }) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Polls</h1>
-          <p className="text-muted">Search and filter polls from your API.</p>
         </div>
         <Link to="/app/polls/create">
           <Button>Create poll</Button>

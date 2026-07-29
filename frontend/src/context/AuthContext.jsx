@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import toast from "react-hot-toast";
@@ -16,6 +17,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const wasAuthenticated = useRef(false);
 
   const logout = useCallback(() => {
     setStoredToken(null);
@@ -32,16 +34,22 @@ export function AuthProvider({ children }) {
     }
     const { data } = await getMe();
     setUser(data.user);
-    setStats(data.stats);
+    setStats(data.stats || data.status);
     return data;
   }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
+      if (wasAuthenticated.current) {
+        toast.error("Session expired. Please sign in again.");
+      }
       logout();
-      toast.error("Session expired. Please sign in again.");
     });
   }, [logout]);
+
+  useEffect(() => {
+    wasAuthenticated.current = Boolean(user);
+  }, [user]);
 
   useEffect(() => {
     (async () => {

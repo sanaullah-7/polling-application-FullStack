@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import PollCard from "../components/polls/PollCard";
 import PollCardSkeleton from "../components/polls/PollCardSkeleton";
 import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
 import { getTrending, listPolls } from "../services/pollService";
 
@@ -21,12 +23,14 @@ export default function HomePage() {
         ]);
         const following = pollRes.data || [];
         if (following.length) {
-          setPolls(following.slice(0, 6));
+          setPolls(following.slice(0, 2));
         } else {
           const all = await listPolls();
-          setPolls((all.data || []).slice(0, 6));
+          setPolls((all.data || []).slice(0, 2));
         }
         setTrending(trendRes.data || []);
+      } catch {
+        /* silent */
       } finally {
         setLoading(false);
       }
@@ -34,73 +38,109 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <section className="card rounded-3xl p-6 md:p-8">
-        <p className="text-sm text-muted">Welcome back</p>
-        <h1 className="mt-1 text-3xl font-bold">Hey, {user?.name} 👋</h1>
-        <p className="mt-2 max-w-2xl text-muted">
-          Your dashboard is synced with the backend in real time.
-        </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+    <div className="flex h-full flex-col gap-4 overflow-hidden">
+      {/* Welcome + Stats */}
+      <motion.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card shrink-0 p-5"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted">Welcome back 👋</p>
+            <h1 className="text-2xl font-bold">{user?.name?.split(" ")[0]}</h1>
+          </div>
+          <Link to="/app/polls/create">
+            <Button>+ New poll</Button>
+          </Link>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-3">
           {[
-            ["Created", stats?.created ?? 0],
-            ["Voted", stats?.voted ?? 0],
-            ["Saved", stats?.bookmarked ?? 0],
-          ].map(([label, value]) => (
+            ["Created", stats?.created ?? 0, "📝"],
+            ["Voted", stats?.voted ?? 0, "✅"],
+            ["Saved", stats?.bookmarked ?? 0, "🔖"],
+          ].map(([label, value, emoji]) => (
             <div
               key={label}
-              className="rounded-2xl border border-[var(--border)] bg-white/40 p-4 dark:bg-white/5"
+              className="stat-card rounded-xl border border-[var(--border)] p-3 text-center transition hover:scale-[1.02]"
             >
-              <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+              <span className="text-xl">{emoji}</span>
               <p className="mt-1 text-2xl font-bold">{value}</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted">
+                {label}
+              </p>
             </div>
           ))}
         </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link to="/app/polls/create">
-            <Button>Create poll</Button>
-          </Link>
-          <Link to="/app/polls">
-            <Button variant="secondary">Browse all polls</Button>
+      </motion.section>
+
+      {/* Trending pills */}
+      {trending.length > 0 ? (
+        <section className="shrink-0">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+            🔥 Trending
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {trending.map((item) => (
+              <span
+                key={item.type}
+                className="pill inline-flex items-center gap-1 px-3 py-1 text-xs font-medium capitalize"
+              >
+                {item.type} · <strong>{item.count}</strong>
+              </span>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Latest polls — fills remaining space */}
+      <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="mb-2 flex shrink-0 items-center justify-between">
+          <h2 className="font-semibold">🗳️ Latest polls</h2>
+          <Link
+            to="/app/polls"
+            className="text-sm font-medium text-[var(--accent)] hover:underline"
+          >
+            View all →
           </Link>
         </div>
-      </section>
 
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Trending categories</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {trending.map((item) => (
-            <div key={item.type} className="card rounded-2xl p-4">
-              <p className="text-sm capitalize text-muted">{item.type}</p>
-              <p className="text-2xl font-bold">{item.count}</p>
+        <div className="grid min-h-0 flex-1 gap-3 overflow-hidden md:grid-cols-2">
+          {loading ? (
+            <>
+              <PollCardSkeleton />
+              <PollCardSkeleton />
+            </>
+          ) : polls.length ? (
+            polls.map((poll) => (
+              <PollCard
+                key={poll._id}
+                poll={poll}
+                compact
+                onBookmarkChange={(id, bookmarked) =>
+                  setPolls((prev) =>
+                    prev.map((p) =>
+                      p._id === id ? { ...p, isBookmarked: bookmarked } : p,
+                    ),
+                  )
+                }
+              />
+            ))
+          ) : (
+            <div className="md:col-span-2">
+              <EmptyState
+                emoji="🗳️"
+                title="No polls yet"
+                description="Create your first poll to get started."
+                action={
+                  <Link to="/app/polls/create">
+                    <Button>Create poll</Button>
+                  </Link>
+                }
+              />
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Latest for you</h2>
-          <Link to="/app/polls" className="text-sm text-indigo-500">
-            View all
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => <PollCardSkeleton key={i} />)
-            : polls.map((poll) => (
-                <PollCard
-                  key={poll._id}
-                  poll={poll}
-                  onBookmarkChange={(id, bookmarked) =>
-                    setPolls((prev) =>
-                      prev.map((p) =>
-                        p._id === id ? { ...p, isBookmarked: bookmarked } : p,
-                      ),
-                    )
-                  }
-                />
-              ))}
+          )}
         </div>
       </section>
     </div>
