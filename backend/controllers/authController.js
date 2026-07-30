@@ -1,8 +1,9 @@
-import User from "../models/User.js";
-import Poll from "../models/Poll.js";
 import { uploadToCloudinary } from "../config/cloudinary.js";
-import { generateOtp, OtpExpiry, otpValid } from "../utils/otp.js";
 import { sendOtpEmail } from "../config/mailer.js";
+import Poll from "../models/Poll.js";
+import User from "../models/User.js";
+import Comment from "../models/Comment.js";
+import { generateOtp, otpExpiry, otpValid } from "../utils/otp.js";
 import jwt from "jsonwebtoken";
 
 const makeToken = (id) =>
@@ -10,6 +11,7 @@ const makeToken = (id) =>
 
 const clean = (u) => ({
   _id: u._id,
+  id: u._id,
   name: u.name,
   email: u.email,
   username: u.username,
@@ -17,122 +19,59 @@ const clean = (u) => ({
   bio: u.bio,
 });
 
-const sendVerificationOtp = async (user, reason) => {
-  user.otp = generateOtp();
-  user.otpExpires = OtpExpiry();
-  await user.save();
-  await sendOtpEmail(user.email, user.otp, reason);
-};
-
 export const register = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
-    const normalizedEmail = String(email || "")
-      .trim()
-      .toLowerCase();
-    const normalizedUsername = String(username || "").trim();
-
-    if (!name || !normalizedEmail || !normalizedUsername || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!name || !email || !username || !password) {
+      return res.status(400).json({ message: "All fields are required!" });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({
-        message: "Password must be at least 8 characters",
-      });
-    }
-
-    const [byEmail, byUsername] = await Promise.all([
-      User.findOne({ email: normalizedEmail }),
-      User.findOne({ username: normalizedUsername }),
-    ]);
-
-    if (byEmail?.isVerified) {
-      return res.status(400).json({ message: "This email is already registered" });
-    }
-
-    if (byUsername && String(byUsername.email) !== String(normalizedEmail)) {
-      return res.status(400).json({ message: "This username is already taken" });
+    const exists = await User.findOne({ $or: [{ email }, { username }] });
+    if (exists) {
+      return res.status(400).json({ message: "Email or username already taken" });
     }
 
     let avatar = "";
     if (req.file) {
       try {
         avatar = await uploadToCloudinary(req.file.buffer);
-      } catch (error) {
-        console.warn("Avatar upload skipped:", error.message);
+      } catch (e) {
+        console.warn("Avatar upload skipped", e.message);
       }
     }
 
-    let user = byEmail;
+    const otp = generateOtp();
+    await User.create({
+      name,
+      email,
+      username,
+      password,
+      avatar,
+      otp,
+      otpExpires: otpExpiry(),
+    });
 
-    if (user) {
-      user.name = name;
-      user.username = normalizedUsername;
-      user.password = password;
-      if (avatar) user.avatar = avatar;
-      await user.save();
-    } else {
-      user = await User.create({
-        name,
-        email: normalizedEmail,
-        username: normalizedUsername,
-        password,
-        avatar,
-      });
-    }
+    await sendOtpEmail(email, otp, "verify your Pollify account");
 
-    try {
-      await sendVerificationOtp(user, "verify your Pollify account");
-    } catch (error) {
-      return res.status(503).json({
-        message: error.message,
-        needsVerification: true,
-        email: user.email,
-      });
-    }
-
-    return res.status(byEmail ? 200 : 201).json({
+    res.status(201).json({
       needsVerification: true,
-      email: user.email,
-      message: byEmail
-        ? "Verification code resent. Check your email."
-        : "Account created. Check your email for the verification code.",
+      email,
     });
   } catch (error) {
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern || {})[0];
-      return res.status(400).json({
-        message:
-          field === "email"
-            ? "This email is already registered"
-            : "This username is already taken",
-      });
-    }
-    return res.status(500).json({ message: "Registration failed. Try again." });
+    res.status(500).json({ message: error });
   }
 };
 
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const normalizedEmail = String(email || "")
-      .trim()
-      .toLowerCase();
-
-    if (!normalizedEmail || !otp) {
-      return res.status(400).json({ message: "Email and OTP are required" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const user = await User.findOne({ email: normalizedEmail });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    if (user.isVerified) {
-      return res.json({ token: makeToken(user._id), user: clean(user) });
-    }
-
-    if (!otpValid(user, otp)) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    if (!user.isVerified && !otpValid(user, otp)) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
     }
 
     user.isVerified = true;
@@ -140,66 +79,53 @@ export const verifyOtp = async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    return res.json({ token: makeToken(user._id), user: clean(user) });
+    res.json({
+      token: makeToken(user._id),
+      user: clean(user),
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Verification failed. Try again." });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const resendOtp = async (req, res) => {
   try {
-    const normalizedEmail = String(req.body.email || "")
-      .trim()
-      .toLowerCase();
-    if (!normalizedEmail) {
-      return res.status(400).json({ message: "Email is required" });
-    }
-
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.isVerified) {
-      return res.status(400).json({ message: "Email is already verified" });
-    }
+    user.otp = generateOtp();
+    user.otpExpires = otpExpiry();
+    await user.save();
 
-    await sendVerificationOtp(user, "verify your Pollify account");
-
-    return res.json({ message: "Verification code sent" });
+    await sendOtpEmail(user.email, user.otp, "verify your email");
+    res.json({ message: "OTP SENT" });
   } catch (error) {
-    return res.status(503).json({
-      message:
-        error.message ||
-        "Could not send verification email. Try again shortly.",
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const normalizedEmail = String(req.body.email || "")
-      .trim()
-      .toLowerCase();
-    const { password } = req.body;
-
-    const user = await User.findOne({ email: normalizedEmail });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid Email or Password" });
     }
 
     if (!user.isVerified) {
       return res.status(403).json({
         message: "Please verify your email first",
         needsVerification: true,
-        email: user.email,
+        email,
       });
     }
 
-    return res.json({
+    res.status(200).json({
       token: makeToken(user._id),
       user: clean(user),
     });
   } catch (error) {
-    return res.status(500).json({ message: "Login failed. Try again." });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -211,7 +137,9 @@ export const updateProfile = async (req, res) => {
 
     if (username && username !== user.username) {
       const taken = await User.findOne({ username });
-      if (taken) return res.status(400).json({ message: "Username already taken" });
+      if (taken) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
       user.username = username;
     }
     if (name) user.name = name;
@@ -224,69 +152,75 @@ export const updateProfile = async (req, res) => {
       }
     }
     await user.save();
-    return res.json({ user: clean(user) });
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
+    res.json({ user: clean(user) });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({
-        message: "Current and new password are required",
-      });
+    if (!newPassword || newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "New Password must be atleast 8 char" });
     }
 
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
-
-    const isMatch = await user.matchPassword(currentPassword);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Current password is incorrect" });
+    if (!(await user.matchPassword(currentPassword))) {
+      return res.status(400).json({ message: "Current Password is incorrect" });
     }
 
     user.password = newPassword;
     await user.save();
-
-    return res.json({ message: "Password changed successfully" });
+    res.json({ message: "Password updated" });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const deleteAccount = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const id = req.userId;
+    const myPolls = await Poll.find({ creator: id }).select("_id");
+    const pollIds = myPolls.map((p) => p._id);
 
-    await User.findByIdAndDelete(req.userId);
-    return res.json({ message: "Account deleted successfully" });
+    await Comment.deleteMany({
+      $or: [{ user: id }, { poll: { $in: pollIds } }],
+    });
+
+    await Poll.deleteMany({ creator: id });
+    await Poll.updateMany({}, { $pull: { votes: { user: id } } });
+
+    await User.findByIdAndDelete(id);
+
+    res.json({ message: "Account Deleted!" });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found!" });
 
     const [created, voted] = await Promise.all([
-      Poll.countDocuments({ creator: req.userId }),
-      Poll.countDocuments({ "votes.user": req.userId }),
+      Poll.countDocuments({ creator: user._id }),
+      Poll.countDocuments({ "votes.user": user._id }),
     ]);
 
-    return res.json({
+    res.json({
       user: clean(user),
       stats: {
         created,
         voted,
-        bookmarked: (user.bookmarks || []).length,
+        bookmarked: user.bookmarks.length,
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
