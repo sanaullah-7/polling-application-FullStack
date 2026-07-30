@@ -46,19 +46,21 @@ export default function LoginPage() {
         <p className="mt-1 text-sm text-muted">Sign in to your Pollify account</p>
 
         <form onSubmit={submit} className="mt-7 space-y-5">
+          
           <Input
             label="Email address"
             type="email"
-            icon={FiMail}
+            // icon={FiMail}
             required
             placeholder="you@example.com"
             value={form.email}
+            className="text-4xl"
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
           <Input
             label="Password"
             type="password"
-            icon={FiLock}
+            // icon={FiLock}
             required
             minLength={8}
             placeholder="Enter your password"
