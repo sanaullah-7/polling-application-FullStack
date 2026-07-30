@@ -44,9 +44,9 @@ export default function CreatePollPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-3xl font-bold">Create poll</h1>
+      <h1 className="page-title">Create poll</h1>
 
-      <form onSubmit={submit} className="card space-y-4 rounded-2xl p-6">
+      <form onSubmit={submit} className="card space-y-4 rounded-2xl p-4 sm:p-6">
         <TextArea
           label="Question"
           required

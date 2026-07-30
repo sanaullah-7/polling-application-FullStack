@@ -30,8 +30,8 @@ export default function ForgotPasswordPage() {
       <div className="mb-8 text-center lg:hidden">
         <Logo />
       </div>
-      <div className="card auth-card rounded-2xl p-8">
-        <h1 className="text-2xl font-bold">Forgot password?</h1>
+      <div className="card auth-card rounded-2xl p-5 sm:p-8">
+        <h1 className="text-xl font-bold sm:text-2xl">Forgot password?</h1>
         <p className="mt-1 text-sm text-muted">We&apos;ll send a reset code to your email</p>
         <form onSubmit={submit} className="mt-7 space-y-5">
           <Input

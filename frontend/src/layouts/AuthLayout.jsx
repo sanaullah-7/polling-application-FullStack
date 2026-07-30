@@ -30,7 +30,7 @@ export default function AuthLayout() {
       </div>
 
       {/* Right form panel — centered */}
-      <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
+      <div className="flex min-h-screen min-h-[100dvh] items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-10">
         <div className="page-enter w-full max-w-[420px]">
           <Outlet />
         </div>

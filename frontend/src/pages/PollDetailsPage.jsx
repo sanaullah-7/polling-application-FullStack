@@ -92,9 +92,14 @@ export default function PollDetailsPage() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-      <div className="space-y-6">
-        <article className="card rounded-2xl p-6">
+    <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr] lg:gap-6">
+      <aside className="card order-1 h-fit rounded-2xl p-4 sm:p-5 lg:order-2">
+        <h2 className="mb-4 text-base font-semibold sm:text-lg">Cast your vote</h2>
+        <VotePanel poll={poll} onVoted={load} />
+      </aside>
+
+      <div className="order-2 space-y-4 sm:space-y-6 lg:order-1">
+        <article className="card rounded-2xl p-4 sm:p-6">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <AvatarLink user={poll.creator} />
@@ -110,7 +115,7 @@ export default function PollDetailsPage() {
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold">{poll.question}</h1>
+          <h1 className="text-xl font-bold leading-snug sm:text-2xl">{poll.question}</h1>
           <p className="mt-2 text-sm text-muted">
             {POLL_TYPE_LABELS[poll.type]} · {poll.totalVotes} votes ·{" "}
             {poll.views} views
@@ -164,11 +169,6 @@ export default function PollDetailsPage() {
 
         <CommentSection pollId={id} />
       </div>
-
-      <aside className="card h-fit rounded-2xl p-5">
-        <h2 className="mb-4 text-lg font-semibold">Cast your vote</h2>
-        <VotePanel poll={poll} onVoted={load} />
-      </aside>
 
       <Modal open={confirmDelete} title="Delete poll?" onClose={() => setConfirmDelete(false)}>
         <p className="text-sm text-muted">

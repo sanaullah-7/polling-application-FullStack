@@ -29,6 +29,14 @@ export default function RegisterPage() {
       toast.success(res.message || "Check your email for the code");
       navigate("/verify-otp", { state: { email: res.email } });
     } catch (err) {
+      const data = err.raw?.response?.data;
+      if (data?.needsVerification) {
+        toast.success(data.message || "Check your email for the code");
+        navigate("/verify-otp", {
+          state: { email: data.email || form.email },
+        });
+        return;
+      }
       toast.error(err.message);
     } finally {
       setLoading(false);
@@ -41,8 +49,8 @@ export default function RegisterPage() {
         <Logo />
       </div>
 
-      <div className="card auth-card rounded-2xl p-8">
-        <h1 className="text-2xl font-bold">Create your account</h1>
+      <div className="card auth-card rounded-2xl p-5 sm:p-8">
+        <h1 className="text-xl font-bold sm:text-2xl">Create your account</h1>
         <p className="mt-1 text-sm text-muted">Start polling in under a minute</p>
 
         <form onSubmit={submit} className="mt-7 space-y-4">

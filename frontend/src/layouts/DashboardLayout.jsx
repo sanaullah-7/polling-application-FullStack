@@ -15,13 +15,18 @@ import { useNotifications } from "../hooks/useNotifications";
 import Avatar from "../components/ui/Avatar";
 import Logo from "../components/ui/Logo";
 
-const navItems = [
+const mobileNavItems = [
   { to: "/app/home", label: "Home", icon: FiHome, emoji: "🏠" },
-  { to: "/app/polls", label: "All Polls", icon: MdPoll, emoji: "🗳️" },
-  { to: "/app/polls/mine", label: "My Polls", icon: MdPoll, emoji: "📋" },
+  { to: "/app/polls", label: "Polls", icon: MdPoll, emoji: "🗳️" },
   { to: "/app/polls/create", label: "Create", icon: FiPlusCircle, emoji: "✨" },
   { to: "/app/notifications", label: "Alerts", icon: FiBell, emoji: "🔔" },
   { to: "/app/profile", label: "Profile", icon: FiUser, emoji: "👤" },
+];
+
+const navItems = [
+  ...mobileNavItems.slice(0, 2),
+  { to: "/app/polls/mine", label: "My Polls", icon: MdPoll, emoji: "📋" },
+  ...mobileNavItems.slice(2),
 ];
 
 export default function DashboardLayout() {
@@ -110,23 +115,23 @@ export default function DashboardLayout() {
           </div>
         </main>
 
-        <nav className="glass shrink-0 border-t border-[var(--border)] px-2 py-2 lg:hidden">
-          <div className="grid grid-cols-5 gap-1">
-            {navItems.slice(0, 5).map(({ to, icon: Icon, emoji, label }) => (
+        <nav className="mobile-bottom-nav glass shrink-0 border-t border-[var(--border)] px-1 py-1.5 sm:px-2 sm:py-2 lg:hidden">
+          <div className="grid grid-cols-5 gap-0.5 sm:gap-1">
+            {mobileNavItems.map(({ to, icon: Icon, emoji, label }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-0.5 rounded-xl py-2 text-[10px] font-medium transition ${
+                  `flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] font-medium transition sm:py-2 sm:text-[10px] ${
                     isActive
                       ? "bg-[var(--accent-soft)] text-[var(--accent)]"
                       : "text-muted"
                   }`
                 }
               >
-                <span className="text-base leading-none">{emoji}</span>
-                <Icon size={16} />
-                <span>{label.split(" ")[0]}</span>
+                <span className="text-sm leading-none sm:text-base">{emoji}</span>
+                <Icon size={14} className="hidden sm:block" />
+                <span className="w-full truncate text-center">{label}</span>
               </NavLink>
             ))}
           </div>

@@ -12,66 +12,70 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen">
-      {/* Navbar */}
+    <div className="min-h-screen min-h-[100dvh]">
       <header className="glass sticky top-0 z-30 border-b border-[var(--border)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/">
-            <Logo />
+        <div className="container-page flex items-center justify-between gap-3 py-3 sm:py-4">
+          <Link to="/" className="shrink-0">
+            <Logo size="sm" />
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link to="/login">
-              <Button variant="ghost">Sign in</Button>
+              <Button variant="ghost" className="px-3 py-2 text-xs sm:px-5 sm:text-sm">
+                Sign in
+              </Button>
             </Link>
             <Link to="/register">
-              <Button>Get started</Button>
+              <Button className="px-3 py-2 text-xs sm:px-5 sm:text-sm">
+                Get started
+              </Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
-        <div className="page-enter">
-          <span className="pill mb-5 inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium">
+      <section className="container-page grid items-center gap-8 py-10 sm:gap-12 sm:py-16 lg:grid-cols-2 lg:py-24">
+        <div className="page-enter text-center lg:text-left">
+          <span className="pill mb-4 inline-flex items-center gap-2 px-3 py-1 text-xs font-medium sm:mb-5 sm:px-4 sm:py-1.5 sm:text-sm">
             🗳️ The modern polling platform
           </span>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+          <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
             Ask better questions.
-            <span className="mt-2 block text-[var(--accent)]">Get clearer answers.</span>
+            <span className="mt-1 block text-[var(--accent)] sm:mt-2">
+              Get clearer answers.
+            </span>
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted">
+          <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted sm:mt-5 sm:text-lg lg:mx-0">
             Create stunning polls, share with anyone, and watch results roll in — all from one beautiful dashboard.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link to="/register">
-              <Button className="px-7 py-3 text-base">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+            <Link to="/register" className="w-full sm:w-auto">
+              <Button className="w-full px-6 py-3 text-sm sm:w-auto sm:text-base">
                 Get started free <FiArrowRight />
               </Button>
             </Link>
-            <Link to="/login">
-              <Button variant="secondary" className="px-7 py-3 text-base">
+            <Link to="/login" className="w-full sm:w-auto">
+              <Button variant="secondary" className="w-full px-6 py-3 text-sm sm:w-auto sm:text-base">
                 Sign in
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="page-enter">
-          <PollIllustration className="mx-auto w-full max-w-md drop-shadow-2xl" />
-          <div className="card mt-8 p-6">
-            <div className="space-y-4">
+        <div className="page-enter w-full">
+          <PollIllustration className="mx-auto w-full max-w-xs drop-shadow-2xl sm:max-w-md" />
+          <div className="card mt-6 p-4 sm:mt-8 sm:p-6">
+            <div className="space-y-3 sm:space-y-4">
               {features.map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="flex items-center gap-4 rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--accent)]/30 hover:bg-[var(--accent-soft)]"
+                  className="flex items-center gap-3 rounded-xl border border-[var(--border)] p-3 transition hover:border-[var(--accent)]/30 hover:bg-[var(--accent-soft)] sm:gap-4 sm:p-4"
                 >
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)]">
-                    <Icon className="text-[var(--accent)]" size={20} />
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)] sm:h-11 sm:w-11">
+                    <Icon className="text-[var(--accent)]" size={18} />
                   </div>
-                  <div>
-                    <p className="font-semibold">{title}</p>
-                    <p className="text-sm text-muted">{desc}</p>
+                  <div className="min-w-0 text-left">
+                    <p className="text-sm font-semibold sm:text-base">{title}</p>
+                    <p className="text-xs text-muted sm:text-sm">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -80,8 +84,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8 text-center text-sm text-muted">
+      <footer className="border-t border-[var(--border)] py-6 text-center text-xs text-muted sm:py-8 sm:text-sm">
         © {new Date().getFullYear()} Pollify · Built for Saylani Bootcamp
       </footer>
     </div>

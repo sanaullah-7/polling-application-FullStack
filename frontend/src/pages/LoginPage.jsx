@@ -41,8 +41,8 @@ export default function LoginPage() {
         <Logo />
       </div>
 
-      <div className="card auth-card rounded-2xl p-8">
-        <h1 className="text-2xl font-bold">Welcome back</h1>
+      <div className="card auth-card rounded-2xl p-5 sm:p-8">
+        <h1 className="text-xl font-bold sm:text-2xl">Welcome back</h1>
         <p className="mt-1 text-sm text-muted">Sign in to your Pollify account</p>
 
         <form onSubmit={submit} className="mt-7 space-y-5">
@@ -70,7 +70,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-6 flex items-center justify-between text-sm">
+        <div className="mt-6 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
           <Link to="/forgot-password" className="font-medium text-[var(--accent)] hover:underline">
             Forgot password?
           </Link>

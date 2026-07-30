@@ -74,9 +74,9 @@ export default function EditProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-3xl font-bold">Edit profile</h1>
+      <h1 className="page-title">Edit profile</h1>
 
-      <form onSubmit={saveProfile} className="card space-y-4 rounded-2xl p-6">
+      <form onSubmit={saveProfile} className="card space-y-4 rounded-2xl p-4 sm:p-6">
         <Input
           label="Name"
           value={form.name}
@@ -107,7 +107,7 @@ export default function EditProfilePage() {
         </Button>
       </form>
 
-      <form onSubmit={savePassword} className="card space-y-4 rounded-2xl p-6">
+      <form onSubmit={savePassword} className="card space-y-4 rounded-2xl p-4 sm:p-6">
         <h2 className="text-lg font-semibold">Change password</h2>
         <Input
           label="Current password"
@@ -131,7 +131,7 @@ export default function EditProfilePage() {
         </Button>
       </form>
 
-      <div className="card rounded-2xl border border-rose-500/20 p-6">
+      <div className="card rounded-2xl border border-rose-500/20 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-rose-500">Danger zone</h2>
         <p className="mt-1 text-sm text-muted">
           Permanently delete your account and data.

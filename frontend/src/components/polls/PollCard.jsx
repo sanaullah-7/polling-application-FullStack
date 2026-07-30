@@ -43,19 +43,19 @@ export default function PollCard({ poll, onBookmarkChange, compact = false }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`card card-hover group ${compact ? "rounded-xl p-3" : "rounded-xl p-4"}`}
+      className={`card card-hover group min-w-0 ${compact ? "rounded-xl p-3" : "rounded-xl p-4"}`}
     >
       <div className={`flex items-start justify-between gap-2 ${compact ? "mb-2" : "mb-4"}`}>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <AvatarLink user={poll.creator} />
-          <div>
-            <p className="text-sm font-semibold">{poll.creator?.name}</p>
-            <p className="text-xs text-muted">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">{poll.creator?.name}</p>
+            <p className="truncate text-xs text-muted">
               @{poll.creator?.username} · {formatRelative(poll.createdAt)}
             </p>
           </div>
         </div>
-        <span className="rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--accent)]">
+        <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)] sm:px-2.5 sm:text-xs">
           {poll.category}
         </span>
       </div>

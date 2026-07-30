@@ -8,11 +8,11 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <section className="card rounded-3xl p-6 md:p-8">
+      <section className="card rounded-2xl p-4 sm:rounded-3xl sm:p-6 md:p-8">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <Avatar user={user} size="lg" />
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">{user?.name}</h1>
+            <h1 className="page-title">{user?.name}</h1>
             <p className="text-muted">@{user?.username}</p>
             {user?.bio ? <p className="mt-3 text-sm">{user.bio}</p> : null}
           </div>

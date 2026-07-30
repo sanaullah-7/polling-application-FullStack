@@ -29,8 +29,17 @@ const friendlyMessage = (message) => {
   return raw;
 };
 
+const resolveBaseUrl = () => {
+  const raw =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.PROD
+      ? "https://polling-application-backend.vercel.app"
+      : "http://localhost:5000");
+  return String(raw).replace(/\/$/, "");
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: resolveBaseUrl(),
   headers: { "Content-Type": "application/json" },
 });
 

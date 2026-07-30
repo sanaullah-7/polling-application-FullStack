@@ -67,14 +67,14 @@ export default function AllPollsPage({ defaultTab = "all" }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Polls</h1>
+          <h1 className="page-title">Polls</h1>
         </div>
         <Link to="/app/polls/create">
           <Button>Create poll</Button>
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 no-scrollbar">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -92,7 +92,7 @@ export default function AllPollsPage({ defaultTab = "all" }) {
       </div>
 
       {activeTab === "all" ? (
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

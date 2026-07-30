@@ -52,11 +52,11 @@ export default function OtpVerificationPage() {
         <Logo />
       </div>
 
-      <div className="card auth-card rounded-2xl p-8">
+      <div className="card auth-card rounded-2xl p-5 sm:p-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-2xl">
           ✉️
         </div>
-        <h1 className="text-center text-2xl font-bold">Verify your email</h1>
+        <h1 className="text-center text-xl font-bold sm:text-2xl">Verify your email</h1>
         <p className="mt-1 text-center text-sm text-muted">
           Enter the 6-digit code sent to your inbox
         </p>

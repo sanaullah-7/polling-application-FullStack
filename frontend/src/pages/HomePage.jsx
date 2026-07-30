@@ -43,19 +43,19 @@ export default function HomePage() {
       <motion.section
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card shrink-0 p-5"
+        className="card shrink-0 p-4 sm:p-5"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm text-muted">Welcome back 👋</p>
-            <h1 className="text-2xl font-bold">{user?.name?.split(" ")[0]}</h1>
+          <h1 className="page-title">{user?.name?.split(" ")[0]}</h1>
           </div>
           <Link to="/app/polls/create">
             <Button>+ New poll</Button>
           </Link>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
           {[
             ["Created", stats?.created ?? 0, "📝"],
             ["Voted", stats?.voted ?? 0, "✅"],
@@ -63,10 +63,10 @@ export default function HomePage() {
           ].map(([label, value, emoji]) => (
             <div
               key={label}
-              className="stat-card rounded-xl border border-[var(--border)] p-3 text-center transition hover:scale-[1.02]"
+              className="stat-card rounded-xl border border-[var(--border)] p-2 text-center transition hover:scale-[1.02] sm:p-3"
             >
               <span className="text-xl">{emoji}</span>
-              <p className="mt-1 text-2xl font-bold">{value}</p>
+              <p className="mt-1 text-xl font-bold sm:text-2xl">{value}</p>
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted">
                 {label}
               </p>
@@ -106,7 +106,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid min-h-0 flex-1 gap-3 overflow-hidden md:grid-cols-2">
+        <div className="grid min-h-0 flex-1 gap-3 overflow-hidden sm:grid-cols-2">
           {loading ? (
             <>
               <PollCardSkeleton />

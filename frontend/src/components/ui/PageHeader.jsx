@@ -13,7 +13,7 @@ export default function PageHeader({ emoji, title, subtitle, action }) {
             {emoji}
           </span>
         ) : null}
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+        <h1 className="page-title tracking-tight">{title}</h1>
         {subtitle ? <p className="mt-1 text-muted">{subtitle}</p> : null}
       </div>
       {action ? <div>{action}</div> : null}
